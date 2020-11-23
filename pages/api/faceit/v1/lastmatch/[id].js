@@ -1,9 +1,7 @@
-import fs from 'fs';
+require('dotenv').config();
 import faceitjs from 'faceit-js';
 
-let tokens = {};
-try { tokens = JSON.parse(fs.readFileSync('./tokens.json', 'UTF-8')); } catch {}
-const faceit_api = new faceitjs(tokens.faceit);
+const faceit_api = new faceitjs(process.env.FACEIT);
 
 async function LastMatch(request, response) {
     const id = request.query.id;

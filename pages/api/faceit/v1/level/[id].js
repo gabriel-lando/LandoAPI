@@ -1,9 +1,7 @@
-import fs from 'fs';
+require('dotenv').config();
 import faceitjs from 'faceit-js';
 
-let tokens = {};
-try { tokens = JSON.parse(fs.readFileSync('./tokens.json', 'UTF-8')); } catch {}
-const faceit_api = new faceitjs(tokens.faceit);
+const faceit_api = new faceitjs(process.env.FACEIT);
 
 const ratingElo = ["0-0", "1-800", "801-950", "951-1100", "1101-1250", "1251-1400", "1401-1550", "1551-1700", "1701-1850", "1851-2000", "2001+"];
 function EloRange(level) {

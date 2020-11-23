@@ -1,9 +1,6 @@
-import fs from 'fs';
+require('dotenv').config();
 import axios from 'axios';
 import moment from 'moment-timezone';
-
-let tokens = {};
-try { tokens = JSON.parse(fs.readFileSync('./tokens.json', 'UTF-8')); } catch {}
 
 function UpdateSession(cookies) {
     if (!cookies)
@@ -19,8 +16,7 @@ function UpdateSession(cookies) {
     
     if(Object.keys(cookiesParsed).length > 0) {
         if (cookiesParsed.gclubsess) {
-            tokens.gclubsess = cookiesParsed.gclubsess;
-            fs.writeFileSync('./tokens.json', JSON.stringify(tokens, null, 4), 'UTF-8');
+            process.env.GCLUBSESS = cookiesParsed.gclubsess;
         }
 	}
 }
@@ -35,7 +31,7 @@ let headers = {
     'referer': 'https://gamersclub.com.br',
     'accept-encoding': 'gzip',
     'accept-language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
-    'cookie': `gclubsess=${tokens.gclubsess}`
+    'cookie': `gclubsess=${process.env.GCLUBSESS}`
 };
 
 async function LastMatch(request, response) {

@@ -1,9 +1,5 @@
-import fs from 'fs';
+require('dotenv').config();
 import axios from 'axios';
-//import moment from 'moment-timezone';
-
-let tokens = {};
-try { tokens = JSON.parse(fs.readFileSync('./tokens.json', 'UTF-8')); } catch {}
 
 function UpdateSession(cookies) {
     if (!cookies)
@@ -19,8 +15,7 @@ function UpdateSession(cookies) {
     
     if(Object.keys(cookiesParsed).length > 0) {
         if (cookiesParsed.gclubsess) {
-            tokens.gclubsess = cookiesParsed.gclubsess;
-            fs.writeFileSync('./tokens.json', JSON.stringify(tokens, null, 4), 'UTF-8');
+            process.env.GCLUBSESS = cookiesParsed.gclubsess;
         }
 	}
 }
@@ -35,7 +30,7 @@ let headers = {
     'referer': 'https://gamersclub.com.br',
     'accept-encoding': 'gzip',
     'accept-language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
-    'cookie': `gclubsess=${tokens.gclubsess}`
+    'cookie': `gclubsess=${process.env.GCLUBSESS}`
 };
 
 const levelRatingXP = [1000, 1056, 1116, 1179, 1246, 1316, 1390, 1469, 1552, 1639, 1732, 1830, 1933, 2042, 2158, 2280, 2408, 2544, 2688, 2840, 2999];

@@ -1,4 +1,4 @@
-import fs from 'fs';
+require('dotenv').config();
 import crypto from 'crypto';
 
 async function Tokens(request, response) {
@@ -8,43 +8,36 @@ async function Tokens(request, response) {
     const clientIp = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
   
     console.log({
-      url: request.url,
-      clientIp: clientIp,
+        url: request.url,
+        clientIp: clientIp,
     });
 
-    let tokens = null;
-
-    try {
-        tokens = JSON.parse(fs.readFileSync('./tokens.json', 'UTF-8'));
-    } catch (error) {
-        if (error.code === "ENOENT") {
-            var new_key = { key : crypto.randomBytes(20).toString('hex') };
-            fs.writeFileSync('./tokens.json', JSON.stringify(new_key, null, 4), 'UTF-8');
-
-            response.status(200);
-            response.json(new_key);
-        }
-        else {
-            response.status(500);
-            response.json(error);
-        }
+    if (process.env.PASS_KEY == null){
+        process.env.PASS_KEY = crypto.randomBytes(20).toString('hex');
+        var new_key = { key : process.env.PASS_KEY };
+        response.status(200);
+        response.json(new_key);
         return;
     }
 
-    if (key !== tokens.key) {
+    if (key !== process.env.PASS_KEY) {
         response.status(500);
-        response.json("Password does not match.");
+        response.json("Keys does not match.");
         return;
     }
 
     if (gclubsess) {
-        tokens.gclubsess = gclubsess;
+        process.env.GCLUBSESS = gclubsess;
     }
     if (faceit) {
-        tokens.faceit = faceit;
+        process.env.FACEIT = faceit;
     }
-    
-    fs.writeFileSync('./tokens.json', JSON.stringify(tokens, null, 4), 'UTF-8');
+
+    const tokens = {
+        key: process.env.PASS_KEY,
+        gclubsess: process.env.GCLUBSESS,
+        faceit: process.env.FACEIT
+    }
 
     response.status(200);
     response.json(tokens);
