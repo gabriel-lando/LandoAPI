@@ -1,0 +1,27 @@
+{
+  "name": "landoapi",
+  "version": "1.0.0",
+  "description": "GamersClub and Faceit APIs for LandoBot",
+  "scripts": {
+    "dev": "next dev",
+    "start": "next start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gabriel-lando/LandoAPI.git"
+  },
+  "author": "Gabriel Lando",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gabriel-lando/LandoAPI/issues"
+  },
+  "homepage": "https://github.com/gabriel-lando/LandoAPI#readme",
+  "dependencies": {
+    "axios": "^0.21.0",
+    "faceit-js": "0.0.3",
+    "moment-timezone": "^0.5.32",
+    "next": "^10.0.2",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
+  }
+}
