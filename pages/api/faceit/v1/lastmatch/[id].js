@@ -1,8 +1,8 @@
 import fs from 'fs';
 import faceitjs from 'faceit-js';
-import moment from 'moment-timezone';
 
-const tokens = JSON.parse(fs.readFileSync('./tokens.json', 'UTF-8'));
+let tokens = {};
+try { tokens = JSON.parse(fs.readFileSync('./tokens.json', 'UTF-8')); } catch {}
 const faceit_api = new faceitjs(tokens.faceit);
 
 async function LastMatch(request, response) {

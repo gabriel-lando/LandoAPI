@@ -2,7 +2,8 @@ import fs from 'fs';
 import axios from 'axios';
 import moment from 'moment-timezone';
 
-let tokens = JSON.parse(fs.readFileSync('./tokens.json', 'UTF-8'));
+let tokens = {};
+try { tokens = JSON.parse(fs.readFileSync('./tokens.json', 'UTF-8')); } catch {}
 
 function UpdateSession(cookies) {
     if (!cookies)

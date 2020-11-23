@@ -1,7 +1,8 @@
 import fs from 'fs';
 import faceitjs from 'faceit-js';
 
-const tokens = JSON.parse(fs.readFileSync('./tokens.json', 'UTF-8'));
+let tokens = {};
+try { tokens = JSON.parse(fs.readFileSync('./tokens.json', 'UTF-8')); } catch {}
 const faceit_api = new faceitjs(tokens.faceit);
 
 const ratingElo = ["0-0", "1-800", "801-950", "951-1100", "1101-1250", "1251-1400", "1401-1550", "1551-1700", "1701-1850", "1851-2000", "2001+"];

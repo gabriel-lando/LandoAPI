@@ -1,7 +1,8 @@
 import fs from 'fs';
 import faceitjs from 'faceit-js';
 
-const tokens = JSON.parse(fs.readFileSync('./tokens.json', 'UTF-8'));
+let tokens = {};
+try { tokens = JSON.parse(fs.readFileSync('./tokens.json', 'UTF-8')); } catch {}
 const faceit_api = new faceitjs(tokens.faceit);
 
 async function ID(request, response) {
