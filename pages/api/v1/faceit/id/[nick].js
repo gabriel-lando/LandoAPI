@@ -1,19 +1,23 @@
-require('dotenv').config();
 import faceitjs from 'faceit-js';
-
-const faceit_api = new faceitjs(process.env.FACEIT);
+import { LoadCredentials } from '../../utils/credentials/credentials';
 
 async function ID(request, response) {
     const nick = request.query.nick;
     const clientIp = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
-  
+
     console.log({
         nick: nick,
         clientIp: clientIp
     });
 
+    if (!global.credentials)
+        await LoadCredentials();
+
+    if (!global.faceit_api)
+        global.faceit_api = new faceitjs(global.credentials.faceit);
+    
     return new Promise((resolve, reject) => {
-        faceit_api.nickname(nick)
+        global.faceit_api.nickname(nick)
         .then(async (resp) => {
             const data = {
                 status: true,

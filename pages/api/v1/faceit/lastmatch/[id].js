@@ -1,7 +1,6 @@
 require('dotenv').config();
 import faceitjs from 'faceit-js';
-
-const faceit_api = new faceitjs(process.env.FACEIT);
+import { LoadCredentials } from '../../utils/credentials/credentials';
 
 async function LastMatch(request, response) {
     const id = request.query.id;
@@ -12,13 +11,19 @@ async function LastMatch(request, response) {
         clientIp: clientIp
     });
 
+    if (!global.credentials)
+        await LoadCredentials();
+
+    if (!global.faceit_api)
+        global.faceit_api = new faceitjs(global.credentials.faceit);
+
     return new Promise((resolve, reject) => {
-        faceit_api.players(id, "history")
+        global.faceit_api.players(id, "history")
         .then(resp => {
             const match_id = resp.items[0].match_id;
             const time = resp.items[0].finished_at * 1000;
 
-            faceit_api.matches(match_id, true)
+            global.faceit_api.matches(match_id, true)
             .then(resp_match => {
                 const match = resp_match.rounds[0];
                 const map = match.round_stats.Map;

@@ -1,7 +1,6 @@
 require('dotenv').config();
 import faceitjs from 'faceit-js';
-
-const faceit_api = new faceitjs(process.env.FACEIT);
+import { LoadCredentials } from '../../utils/credentials/credentials';
 
 const ratingElo = ["0-0", "1-800", "801-950", "951-1100", "1101-1250", "1251-1400", "1401-1550", "1551-1700", "1701-1850", "1851-2000", "2001+"];
 function EloRange(level) {
@@ -11,14 +10,20 @@ function EloRange(level) {
 async function Level(request, response) {
     const id = request.query.id;
     const clientIp = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
-  
+
     console.log({
         id: id,
         clientIp: clientIp
     });
+    
+    if (!global.credentials)
+        await LoadCredentials();
+
+    if (!global.faceit_api)
+        global.faceit_api = new faceitjs(global.credentials.faceit);
 
     return new Promise((resolve, reject) => {
-        faceit_api.players(id)
+        global.faceit_api.players(id)
         .then(resp => {
             const level = resp.games.csgo.skill_level;
             const elo = resp.games.csgo.faceit_elo;

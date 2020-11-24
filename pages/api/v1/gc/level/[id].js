@@ -1,24 +1,5 @@
-require('dotenv').config();
 import axios from 'axios';
-
-function UpdateSession(cookies) {
-    if (!cookies)
-        return;
-    
-    let cookiesParsed = {};
-	cookies.forEach(function (cookie) {
-		const data = cookie.split("; ")[0].split("=");
-		if(data[0] && data[1]){
-			cookiesParsed[data[0]] = data[1];
-		}
-    });
-    
-    if(Object.keys(cookiesParsed).length > 0) {
-        if (cookiesParsed.gclubsess) {
-            process.env.GCLUBSESS = cookiesParsed.gclubsess;
-        }
-	}
-}
+import { UpdateSession, LoadCredentials } from '../../utils/credentials/credentials';
 
 let headers = {
     'authority': 'gamersclub.com.br',
@@ -30,13 +11,13 @@ let headers = {
     'referer': 'https://gamersclub.com.br',
     'accept-encoding': 'gzip',
     'accept-language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
-    'cookie': `gclubsess=${process.env.GCLUBSESS}`
+    'cookie': ''
 };
 
 const levelRatingXP = [1000, 1056, 1116, 1179, 1246, 1316, 1390, 1469, 1552, 1639, 1732, 1830, 1933, 2042, 2158, 2280, 2408, 2544, 2688, 2840, 2999];
 function XpRangeFromLevel (level) {
-	return {
-		minRating: levelRatingXP[level - 1],
+    return {
+        minRating: levelRatingXP[level - 1],
 		maxRating: levelRatingXP[level]
 	}
 }
@@ -44,12 +25,17 @@ function XpRangeFromLevel (level) {
 async function Level(request, response) {
     const gc_id = request.query.id;
     const clientIp = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
-  
+    
     console.log({
         id: gc_id,
         clientIp: clientIp
     });
+    
+    if (!global.credentials)
+        await LoadCredentials();
 
+    headers.cookie = `gclubsess=${global.credentials.gclubsess}`;
+    
     const options = {
         method: 'GET',
         gzip: true,

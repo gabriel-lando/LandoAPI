@@ -1,5 +1,7 @@
-require('dotenv').config();
 import crypto from 'crypto';
+import { GetCredentials, SetCredentials } from '../mongo/db';
+
+let credentials = {};
 
 async function Tokens(request, response) {
     const gclubsess = request.query.gclubsess ?? null;
@@ -12,35 +14,33 @@ async function Tokens(request, response) {
         clientIp: clientIp,
     });
 
-    if (process.env.PASS_KEY == null){
-        process.env.PASS_KEY = crypto.randomBytes(20).toString('hex');
-        var new_key = { key : process.env.PASS_KEY };
+    if(Object.keys(credentials).length == 0)
+        credentials = GetCredentials();
+
+    if (credentials.key == null){
+        credentials.key = crypto.randomBytes(20).toString('hex');
         response.status(200);
-        response.json(new_key);
+        response.json(credentials);
+        SetCredentials(credentials);
         return;
     }
 
-    if (key !== process.env.PASS_KEY) {
+    if (key !== credentials.key) {
         response.status(500);
         response.json("Keys does not match.");
         return;
     }
 
     if (gclubsess) {
-        process.env.GCLUBSESS = gclubsess;
+        credentials.gclubsess = gclubsess;
     }
     if (faceit) {
-        process.env.FACEIT = faceit;
-    }
-
-    const tokens = {
-        key: process.env.PASS_KEY,
-        gclubsess: process.env.GCLUBSESS,
-        faceit: process.env.FACEIT
+        credentials.faceit = faceit;
     }
 
     response.status(200);
-    response.json(tokens);
+    response.json(credentials);
+    SetCredentials(credentials);
 }
 
 export default Tokens;
