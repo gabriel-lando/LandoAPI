@@ -46,10 +46,11 @@ async function LastMatch(request, response) {
         const match = match_res.data;
 
         let time = null;
-        if (match)
+        if (match) {
             time = new Date(moment(match.data, 'DD/MM/YYYY HH:mm').tz('America/Sao_Paulo').format('MM/DD/YYYY HH:mm:ss'));
-        
-            //Intl.DateTimeFormat().resolvedOptions().timeZone
+            const timeDiff = (180 - new Date().getTimezoneOffset()) * 60000; // 180 minutes = -3:00 GMT (America/Sao_Paulo) --- 60000 = 1 minute in milisseconds
+            time = new Date(time.getTime() + timeDiff);
+        }
 
         let stats = {};
         for (let idx in profile.stats)
@@ -66,9 +67,7 @@ async function LastMatch(request, response) {
             scoreA: lastMatch.win ? Math.max(lastMatch.scoreA, lastMatch.scoreB) : Math.min(lastMatch.scoreA, lastMatch.scoreB),
             scoreB: lastMatch.win ? Math.min(lastMatch.scoreA, lastMatch.scoreB) : Math.max(lastMatch.scoreA, lastMatch.scoreB),
             map: lastMatch.map,
-            stats: stats,
-            data: match,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            stats: stats
         }
 
         response.status(200);
