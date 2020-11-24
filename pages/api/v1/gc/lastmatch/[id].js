@@ -47,7 +47,7 @@ async function LastMatch(request, response) {
 
         let time = null;
         if (match)
-            time = new Date(moment(match.data, 'DD/MM/YYYY HH:mm').tz('America/Sao_Paulo').format('MM/DD/YYYY HH:mm:ss'));
+            time = new Date(moment(match.data, 'DD/MM/YYYY HH:mm').tz(Intl.DateTimeFormat().resolvedOptions().timeZone).format('MM/DD/YYYY HH:mm:ss'));
 
         let stats = {};
         for (let idx in profile.stats)
