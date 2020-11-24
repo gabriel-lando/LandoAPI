@@ -45,9 +45,6 @@ async function LastMatch(request, response) {
         const match_res = await axios.get(match_url, options);
         const match = match_res.data;
 
-        console.log(match);
-        console.log(`Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`);
-
         let time = null;
         if (match)
             time = new Date(moment(match.data, 'DD/MM/YYYY HH:mm').tz('America/Sao_Paulo').format('MM/DD/YYYY HH:mm:ss'));
@@ -69,7 +66,9 @@ async function LastMatch(request, response) {
             scoreA: lastMatch.win ? Math.max(lastMatch.scoreA, lastMatch.scoreB) : Math.min(lastMatch.scoreA, lastMatch.scoreB),
             scoreB: lastMatch.win ? Math.min(lastMatch.scoreA, lastMatch.scoreB) : Math.max(lastMatch.scoreA, lastMatch.scoreB),
             map: lastMatch.map,
-            stats: stats
+            stats: stats,
+            data: match,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
         }
 
         response.status(200);
