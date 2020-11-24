@@ -8,10 +8,10 @@ export async function GetCredentials() {
   return global.credentials;
 };
 
-export async function SetCredentials(credentials) {
+export async function SetCredentials() {
     const { db } = await connectToDatabase();
-    
-    const result = await db.collection("credentials").updateOne({}, global.credentials, {upsert: true});
+
+    const result = await db.collection("credentials").updateOne({}, { $set: global.credentials }, {upsert: true});
 };
 
 export default (request, response) => {
