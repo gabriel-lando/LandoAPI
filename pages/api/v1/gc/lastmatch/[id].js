@@ -45,9 +45,14 @@ async function LastMatch(request, response) {
         const match_res = await axios.get(match_url, options);
         const match = match_res.data;
 
+        console.log(match);
+        console.log(`Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`);
+
         let time = null;
         if (match)
-            time = new Date(moment(match.data, 'DD/MM/YYYY HH:mm').tz(Intl.DateTimeFormat().resolvedOptions().timeZone).format('MM/DD/YYYY HH:mm:ss'));
+            time = new Date(moment(match.data, 'DD/MM/YYYY HH:mm').tz('America/Sao_Paulo').format('MM/DD/YYYY HH:mm:ss'));
+        
+            //Intl.DateTimeFormat().resolvedOptions().timeZone
 
         let stats = {};
         for (let idx in profile.stats)
