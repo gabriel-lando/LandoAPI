@@ -47,9 +47,9 @@ async function LastMatch(request, response) {
 
         let time = null;
         if (match) {
-            time = new Date(moment(match.data, 'DD/MM/YYYY HH:mm').tz('America/Sao_Paulo').format('MM/DD/YYYY HH:mm:ss'));
+            time = new Date(moment(match.data, 'DD/MM/YYYY HH:mm').tz(Intl.DateTimeFormat().resolvedOptions().timeZone/*'America/Sao_Paulo'*/).format('MM/DD/YYYY HH:mm:ss'));
             const timeDiff = (180 - new Date().getTimezoneOffset()) * 60000; // 180 minutes = -3:00 GMT (America/Sao_Paulo) --- 60000 = 1 minute in milisseconds
-            time = new Date(time.getTime() + timeDiff);
+            time = new Date(time.toLocaleString("en-US", {timeZone: 'America/Sao_Paulo'}));
         }
 
         let stats = {};
