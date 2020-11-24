@@ -2,9 +2,6 @@ import axios from 'axios';
 import moment from 'moment-timezone';
 import { UpdateSession, LoadCredentials } from '../../utils/credentials/credentials';
 
-if (!global.credentials/*.gclubsess*/)
-    GetCredentials();
-
 let headers = {
     'authority': 'gamersclub.com.br',
     'accept': 'application/json, text/plain, */*',
