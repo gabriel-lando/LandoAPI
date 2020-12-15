@@ -2,7 +2,7 @@ import axios from 'axios';
 import moment from 'moment-timezone';
 import { UpdateSession, LoadCredentials } from '../../utils/credentials/credentials';
 
-let headers = {
+let headersProfile = {
     'authority': 'gamersclub.com.br',
     'accept': 'application/json, text/javascript, */*; q=0.01',
     'dnt': '1',
@@ -11,10 +11,24 @@ let headers = {
     'sec-fetch-site': 'same-origin',
     'sec-fetch-mode': 'cors',
     'sec-fetch-dest': 'empty',
-    'referer': 'https://gamersclub.com.br',
+    'referer': 'https://gamersclub.com.br/',
     'accept-language': 'pt-BR,pt;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
     'accept-encoding': 'gzip',
     'cookie': ''
+};
+
+const headersMatch = {
+    'authority': 'csgo.gamersclub.gg',
+    'accept': 'application/json, text/javascript, */*; q=0.01',
+    'dnt': '1',
+    'x-requested-with': 'XMLHttpRequest',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36 Edg/87.0.664.60',
+    'sec-fetch-site': 'same-origin',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-dest': 'empty',
+    'referer': 'https://csgo.gamersclub.gg',
+    'accept-language': 'pt-BR,pt;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+    'accept-encoding': 'gzip'
 };
 
 async function LastMatch(request, response) {
@@ -29,12 +43,12 @@ async function LastMatch(request, response) {
     if (!global.credentials)
         await LoadCredentials();
 
-    headers.cookie = `gclubsess=${global.credentials.gclubsess}`;
+    headersProfile.cookie = `gclubsess=${global.credentials.gclubsess}`;
     
     const options = {
         method: 'GET',
         gzip: true,
-        headers: headers
+        headers: headersProfile
     };
     
     try {
@@ -46,8 +60,10 @@ async function LastMatch(request, response) {
         const lastMatch = profile.lastMatches[profile.lastMatches.length - 1];
 
         try {
-            const match_url = `https://gamersclub.com.br/lobby/partida/${lastMatch.id}/1`;
-            const match_res = await axios.get(match_url, options);
+            const match_url = `https://csgo.gamersclub.gg/lobby/partida/${lastMatch.id}/1`;
+            const optionsMatch = { gzip: true, headers: headersMatch };
+
+            const match_res = await axios.get(match_url, optionsMatch);
             const match = match_res.data;
     
             if (match) {
@@ -55,7 +71,7 @@ async function LastMatch(request, response) {
                 const timeDiff = (180 - new Date().getTimezoneOffset()) * 60000; // 180 minutes = -3:00 GMT (America/Sao_Paulo) --- 60000 = 1 minute in milisseconds
                 time = new Date(time.getTime() + timeDiff);
             }
-        } catch (error) { console.log(error); }
+        } catch (error) { console.log(JSON.parse(error)); }
 
         let stats = {};
         for (let idx in profile.stats)
