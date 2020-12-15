@@ -3,14 +3,16 @@ import { UpdateSession, LoadCredentials } from '../../utils/credentials/credenti
 
 let headers = {
     'authority': 'gamersclub.com.br',
-    'accept': 'application/json, text/plain, */*',
+    'accept': 'application/json, text/javascript, */*; q=0.01',
     'dnt': '1',
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 OPR/66.0.3515.75',
+    'x-requested-with': 'XMLHttpRequest',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36 Edg/87.0.664.60',
     'sec-fetch-site': 'same-origin',
     'sec-fetch-mode': 'cors',
+    'sec-fetch-dest': 'empty',
     'referer': 'https://gamersclub.com.br',
+    'accept-language': 'pt-BR,pt;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
     'accept-encoding': 'gzip',
-    'accept-language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
     'cookie': ''
 };
 
