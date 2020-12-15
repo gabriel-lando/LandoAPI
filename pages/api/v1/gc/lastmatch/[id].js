@@ -40,17 +40,20 @@ async function LastMatch(request, response) {
         const profile_res = await axios.get(profile_url, options);
         const profile = profile_res.data;
 
-        const lastMatch = profile.lastMatches[profile.lastMatches.length - 1];
-        const match_url = `https://gamersclub.com.br/lobby/partida/${lastMatch.id}/1`;
-        const match_res = await axios.get(match_url, options);
-        const match = match_res.data;
-
         let time = null;
-        if (match) {
-            time = new Date(moment(match.data, 'DD/MM/YYYY HH:mm').tz(Intl.DateTimeFormat().resolvedOptions().timeZone).format('MM/DD/YYYY HH:mm:ss'));
-            const timeDiff = (180 - new Date().getTimezoneOffset()) * 60000; // 180 minutes = -3:00 GMT (America/Sao_Paulo) --- 60000 = 1 minute in milisseconds
-            time = new Date(time.getTime() + timeDiff);
-        }
+        const lastMatch = profile.lastMatches[profile.lastMatches.length - 1];
+
+        try {
+            const match_url = `https://gamersclub.com.br/lobby/partida/${lastMatch.id}/1`;
+            const match_res = await axios.get(match_url, options);
+            const match = match_res.data;
+    
+            if (match) {
+                time = new Date(moment(match.data, 'DD/MM/YYYY HH:mm').tz(Intl.DateTimeFormat().resolvedOptions().timeZone).format('MM/DD/YYYY HH:mm:ss'));
+                const timeDiff = (180 - new Date().getTimezoneOffset()) * 60000; // 180 minutes = -3:00 GMT (America/Sao_Paulo) --- 60000 = 1 minute in milisseconds
+                time = new Date(time.getTime() + timeDiff);
+            }
+        } catch {}
 
         let stats = {};
         for (let idx in profile.stats)
