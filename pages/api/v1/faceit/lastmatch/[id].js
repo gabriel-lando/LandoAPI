@@ -6,7 +6,7 @@ async function LastMatch(request, response) {
     const id = request.query.id;
     const clientIp = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
 
-    response.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate');
+    response.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate');
   
     console.log({
         id: id,
