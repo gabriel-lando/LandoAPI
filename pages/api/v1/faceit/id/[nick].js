@@ -5,6 +5,8 @@ async function ID(request, response) {
     const nick = request.query.nick;
     const clientIp = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
 
+    response.setHeader('Cache-Control', 's-maxage=120, stale-while-revalidate');
+
     console.log({
         nick: nick,
         clientIp: clientIp

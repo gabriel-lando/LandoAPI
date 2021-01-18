@@ -11,6 +11,8 @@ async function Level(request, response) {
     const id = request.query.id;
     const clientIp = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
 
+    response.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate');
+
     console.log({
         id: id,
         clientIp: clientIp
