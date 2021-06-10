@@ -15,11 +15,11 @@ let headers = {
     'cookie': ''
 };
 
-const levelRatingXP = [1000, 1056, 1116, 1179, 1246, 1316, 1390, 1469, 1552, 1639, 1732, 1830, 1933, 2042, 2158, 2280, 2408, 2544, 2688, 2840, 3000, Infinity];
+const levelRatingXP = [1000, 1056, 1116, 1179, 1246, 1316, 1390, 1469, 1552, 1639, 1732, 1830, 1933, 2042, 2158, 2280, 2408, 2544, 2688, 2840, 3000, '∞'];
 function XpRangeFromLevel (level) {
     return {
         minRating: levelRatingXP[level - 1],
-		maxRating: level < 20 ? levelRatingXP[level] : Infinity
+		maxRating: level != 20 ? levelRatingXP[level] : levelRatingXP[level + 1]
 	}
 }
 
