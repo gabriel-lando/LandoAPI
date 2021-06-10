@@ -1,26 +1,31 @@
-require('dotenv').config();
-import faceitjs from 'faceit-js';
+const faceitjs = require('faceit-js');
 
-async function LastMatch(request, response) {
-    const id = request.query.id;
-    const token = request.query.token;
-    const clientIp = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
+module.exports.FaceitLastMatch = async (event, context, callback) => {
+    if (event.source === 'serverless-plugin-warmup') {
+        return callback(null, 'Lambda is warm!')
+    }
 
-    //response.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate');
-  
-    console.log({
-        id: id,
-        clientIp: clientIp
-    });
+    const id = event.pathParameters?.id;
+    const token = event.queryStringParameters?.token;
 
     if (token == null){
         const data = {
             status: false,
-            id: id,
+            nick,
             message: "Token is invalid or null."
         };
         console.log(data);
-        return response.status(403).json(data);
+        return callback(null, { statusCode: 403, body: JSON.stringify(data) });
+    }
+
+    if (id == null){
+        const data = {
+            status: false,
+            id: id,
+            message: "Id is invalid or null."
+        };
+        console.log(data);
+        return callback(null, { statusCode: 403, body: JSON.stringify(data) });
     }
 
     const faceit_api = new faceitjs(token);
@@ -65,7 +70,7 @@ async function LastMatch(request, response) {
                     stats: userStats.player_stats
                 }
 
-                response.status(200).json(data);
+                callback(null, { statusCode: 200, body: JSON.stringify(data) });
                 resolve();
             }).catch((error) => {
                 const data = {
@@ -74,7 +79,7 @@ async function LastMatch(request, response) {
                     message: error.message ? error.message : error
                 };
                 
-                response.status(500).json(data);
+                callback(null, { statusCode: 500, body: JSON.stringify(data) });
                 resolve();
             });
         }).catch((error) => {
@@ -84,10 +89,8 @@ async function LastMatch(request, response) {
                 message: error.message ? error.message : error
             };
             
-            response.status(500).json(data);
+            callback(null, { statusCode: 500, body: JSON.stringify(data) });
             resolve();
         });
     });
 }
-
-export default LastMatch;

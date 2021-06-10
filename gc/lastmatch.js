@@ -1,6 +1,5 @@
-import axios from 'axios';
-import moment from 'moment-timezone';
-import { UpdateSession, LoadCredentials } from '../../utils/credentials/credentials';
+const axios = require('axios');
+const moment = require('moment-timezone');
 
 let headersProfile = {
     'authority': 'gamersclub.com.br',
@@ -31,21 +30,56 @@ const headersMatch = {
     'accept-encoding': 'gzip'
 };
 
-async function LastMatch(request, response) {
-    const gc_id = request.query.id;
-    const clientIp = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
-
-    //response.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate');
-  
-    console.log({
-        id: gc_id,
-        clientIp: clientIp
+function UpdateSession(cookies, data, token) {
+    data.token = null;
+    if (!cookies)
+        return data;
+    
+    let cookiesParsed = {};
+	cookies.forEach(function (cookie) {
+		const data = cookie.split("; ")[0].split("=");
+		if(data[0] && data[1]){
+			cookiesParsed[data[0]] = data[1];
+		}
     });
+    
+    if(Object.keys(cookiesParsed).length > 0) {
+        if (cookiesParsed.gclubsess && cookiesParsed.gclubsess != token)
+            data.token = cookiesParsed.gclubsess;
+	}
 
-    if (!global.credentials)
-        await LoadCredentials();
+    return data;
+}
 
-    headersProfile.cookie = `gclubsess=${global.credentials.gclubsess}`;
+module.exports.GCLastMatch = async (event, context, callback) => {
+    if (event.source === 'serverless-plugin-warmup') {
+        return callback(null, 'Lambda is warm!')
+    }
+
+    const gc_id = event.pathParameters?.id;
+    const token = event.queryStringParameters?.token;
+
+    if (token == null){
+        const data = {
+            status: false,
+            id: gc_id,
+            message: "Token is invalid or null."
+        };
+        console.log(data);
+        return callback(null, { statusCode: 403, body: JSON.stringify(data) });
+    }
+
+    if (gc_id == null){
+        const data = {
+            status: false,
+            id: gc_id,
+            message: "GC ID is invalid or null."
+        };
+        console.log(data);
+        return callback(null, { statusCode: 403, body: JSON.stringify(data) });
+    }
+
+    headersProfile.cookie = `gclubsess=${token}`;
     
     const options = {
         method: 'GET',
@@ -79,7 +113,7 @@ async function LastMatch(request, response) {
         for (let idx in profile.stats)
             stats[profile.stats[idx].stat] = profile.stats[idx].value;
 
-        const data = {
+        let data = {
             status: lastMatch ? true : false,
             id: profile.playerInfo.id,
             nick: profile.playerInfo.nick,
@@ -92,14 +126,10 @@ async function LastMatch(request, response) {
             map: lastMatch.map,
             stats: stats
         }
-
-        response.status(200);
-        response.json(data);
         
         if(data.status)
-            UpdateSession(profile_res.headers['set-cookie']);
-
-        return;
+            data = UpdateSession(profile_res.headers['set-cookie'], data, token);
+        return callback(null, { statusCode: 200, body: JSON.stringify(data) });
     }
     catch (error) {
         const data = {
@@ -108,9 +138,6 @@ async function LastMatch(request, response) {
             message: error.message ? error.message : error
         };
 
-        response.status(500);
-        response.json(data);
+        return callback(null, { statusCode: 500, body: JSON.stringify(data) });
     }
 }
-
-export default LastMatch;

@@ -1,31 +1,36 @@
-require('dotenv').config();
-import faceitjs from 'faceit-js';
+const faceitjs = require('faceit-js');
 
 const ratingElo = ["0-0", "1-800", "801-950", "951-1100", "1101-1250", "1251-1400", "1401-1550", "1551-1700", "1701-1850", "1851-2000", "2001+"];
 function EloRange(level) {
 	return ratingElo[level];
 }
 
-async function Level(request, response) {
-    const id = request.query.id;
-    const token = request.query.token;
-    const clientIp = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
+module.exports.FaceitLevel = async (event, context, callback) => {
+    if (event.source === 'serverless-plugin-warmup') {
+        return callback(null, 'Lambda is warm!')
+    }
 
-    //response.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate');
+    const id = event.pathParameters?.id;
+    const token = event.queryStringParameters?.token;
 
-    console.log({
-        id: id,
-        clientIp: clientIp
-    });
-    
     if (token == null){
         const data = {
             status: false,
-            id: id,
+            nick,
             message: "Token is invalid or null."
         };
         console.log(data);
-        return response.status(403).json(data);
+        return callback(null, { statusCode: 403, body: JSON.stringify(data) });
+    }
+
+    if (id == null){
+        const data = {
+            status: false,
+            id: id,
+            message: "Id is invalid or null."
+        };
+        console.log(data);
+        return callback(null, { statusCode: 403, body: JSON.stringify(data) });
     }
 
     const faceit_api = new faceitjs(token);
@@ -44,7 +49,7 @@ async function Level(request, response) {
                 rating: EloRange(level)
             };
 
-            response.status(200).json(data);
+            callback(null, { statusCode: 200, body: JSON.stringify(data) });
             resolve();
         }).catch((error) => {
             const data = {
@@ -53,10 +58,8 @@ async function Level(request, response) {
                 message: error.message ? error.message : error
             };
             
-            response.status(500).json(data);
+            callback(null, { statusCode: 500, body: JSON.stringify(data) });
             resolve();
         });
     });
 }
-
-export default Level;

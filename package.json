@@ -22,8 +22,6 @@
     "faceit-js": "latest",
     "moment-timezone": "latest",
     "mongoose": "latest",
-    "next": "latest",
-    "react": "latest",
-    "react-dom": "latest"
+    "serverless-plugin-warmup": "latest"
   }
 }

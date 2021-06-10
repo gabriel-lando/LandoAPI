@@ -1,0 +1,67 @@
+# The `service` block is the name of the service
+service: landoapi
+
+frameworkVersion: '2'
+
+# The `provider` block defines where your service will be deployed
+provider:
+  name: aws
+  runtime: nodejs14.x
+  stage: prd
+  region: sa-east-1
+  lambdaHashingVersion: 20201221
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action:
+            - 'lambda:InvokeFunction'
+          Resource: "*"
+
+custom:
+  warmup:
+    default:
+      enabled: true
+      name: warmer-default
+
+plugins:
+  - serverless-plugin-warmup
+
+functions:
+  # GC
+  GCLevel:
+    handler: gc/level.GCLevel
+    events:
+      - http:
+          path: gc/level/{id}
+          method: get
+          cors: true
+  GCLastMatch:
+    handler: gc/lastmatch.GCLastMatch
+    events:
+      - http:
+          path: gc/lastmatch/{id}
+          method: get
+          cors: true
+  # Faceit
+  FaceitID:
+    handler: faceit/id.FaceitID
+    events:
+      - http:
+          path: faceit/id/{nick}
+          method: get
+          cors: true
+  FaceitLevel:
+    handler: faceit/level.FaceitLevel
+    events:
+      - http:
+          path: faceit/level/{id}
+          method: get
+          cors: true
+  FaceitLastMatch:
+    handler: faceit/lastmatch.FaceitLastMatch
+    events:
+      - http:
+          path: faceit/lastmatch/{id}
+          method: get
+          cors: true

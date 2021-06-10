@@ -1,5 +1,4 @@
-import axios from 'axios';
-import { UpdateSession } from '../utils/credentials';
+const axios = require('axios');
 
 let headers = {
     'authority': 'gamersclub.com.br',
@@ -16,26 +15,43 @@ let headers = {
     'cookie': ''
 };
 
-const levelRatingXP = [1000, 1056, 1116, 1179, 1246, 1316, 1390, 1469, 1552, 1639, 1732, 1830, 1933, 2042, 2158, 2280, 2408, 2544, 2688, 2840, 2999];
+const levelRatingXP = [1000, 1056, 1116, 1179, 1246, 1316, 1390, 1469, 1552, 1639, 1732, 1830, 1933, 2042, 2158, 2280, 2408, 2544, 2688, 2840, 3000, Infinity];
 function XpRangeFromLevel (level) {
     return {
         minRating: levelRatingXP[level - 1],
-		maxRating: levelRatingXP[level]
+		maxRating: level < 20 ? levelRatingXP[level] : Infinity
 	}
 }
 
-async function Level(request, response) {
-    const gc_id = request.query.id;
-    const token = request.query.token;
-    const clientIp = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
-
-    //response.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate');
+function UpdateSession(cookies, data, token) {
+    data.token = null;
+    if (!cookies)
+        return data;
     
-    console.log({
-        id: gc_id,
-        clientIp: clientIp
+    let cookiesParsed = {};
+	cookies.forEach(function (cookie) {
+		const data = cookie.split("; ")[0].split("=");
+		if(data[0] && data[1]){
+			cookiesParsed[data[0]] = data[1];
+		}
     });
     
+    if(Object.keys(cookiesParsed).length > 0) {
+        if (cookiesParsed.gclubsess && cookiesParsed.gclubsess != token)
+            data.token = cookiesParsed.gclubsess;
+	}
+
+    return data;
+}
+
+module.exports.GCLevel = async (event, context, callback) => {
+    if (event.source === 'serverless-plugin-warmup') {
+        return callback(null, 'Lambda is warm!')
+    }
+
+    const gc_id = event.pathParameters?.id;
+    const token = event.queryStringParameters?.token;
+
     if (token == null){
         const data = {
             status: false,
@@ -43,7 +59,17 @@ async function Level(request, response) {
             message: "Token is invalid or null."
         };
         console.log(data);
-        return response.status(403).json(data);
+        return callback(null, { statusCode: 403, body: JSON.stringify(data) });
+    }
+
+    if (gc_id == null){
+        const data = {
+            status: false,
+            id: gc_id,
+            message: "GC ID is invalid or null."
+        };
+        console.log(data);
+        return callback(null, { statusCode: 403, body: JSON.stringify(data) });
     }
 
     headers.cookie = `gclubsess=${token}`;
@@ -76,7 +102,7 @@ async function Level(request, response) {
 
         if(data.status)
             data = UpdateSession(profile_res.headers['set-cookie'], data, token);
-        return response.status(200).json(data);
+            return callback(null, { statusCode: 200, body: JSON.stringify(data) });
     }
     catch (error) {
         const data = {
@@ -85,8 +111,6 @@ async function Level(request, response) {
             message: error.message ? error.message : error
         };
 
-        response.status(500).json(data);
+        return callback(null, { statusCode: 500, body: JSON.stringify(data) });
     }
 }
-
-export default Level;
